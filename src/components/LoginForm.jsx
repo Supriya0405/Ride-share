@@ -4,18 +4,36 @@ import { useNavigate } from "react-router-dom";
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onLogin(username, password); // Validate credentials
-    navigate("/home"); // Redirect to home page on successful login
+
+    // Basic validation for empty fields
+    if (!username || !password) {
+      setErrorMessage("Please enter both username and password.");
+      return;
+    }
+
+    try {
+      // Validate credentials via onLogin function
+      const isValid = await onLogin(username, password);
+
+      if (isValid) {
+        navigate("/home"); // Redirect to home page on successful login
+      } else {
+        setErrorMessage("Invalid username or password.");
+      }
+    } catch (error) {
+      setErrorMessage("An error occurred during login. Please try again.");
+    }
   };
 
   return (
     <div
       style={{
-        backgroundImage: "url('/images/spices-background.jpg')", // Your image path
+        backgroundImage: "url('/images/spices-background.jpg')",
         backgroundSize: "cover",
         backgroundRepeat: "no-repeat",
         backgroundPosition: "center",
@@ -24,21 +42,39 @@ const Login = ({ onLogin }) => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        position: "relative", // Allows absolute positioning inside the container
+        position: "relative",
       }}
     >
       <div
         style={{
-          backgroundColor: "rgba(255, 255, 255, 0.3)", // Semi-transparent background for the form
+          backgroundColor: "rgba(255, 255, 255, 0.8)",
           padding: "30px",
           borderRadius: "10px",
           boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
           width: "100%",
-          maxWidth: "350px",
+          maxWidth: "400px",
           textAlign: "center",
         }}
       >
         <h2 style={{ marginBottom: "20px" }}>Login</h2>
+
+        {/* Display error message if any */}
+        {errorMessage && (
+          <div
+            style={{
+              color: "red",
+              fontSize: "14px",
+              marginBottom: "15px",
+              padding: "10px",
+              backgroundColor: "#f8d7da",
+              borderRadius: "5px",
+              border: "1px solid #f5c6cb",
+            }}
+          >
+            {errorMessage}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
           {/* Username Input */}
           <div style={{ position: "relative", marginBottom: "20px" }}>
@@ -60,7 +96,7 @@ const Login = ({ onLogin }) => {
               required
               style={{
                 width: "100%",
-                padding: "12px 10px 12px 35px", // Added padding for icon
+                padding: "12px 10px 12px 35px",
                 borderRadius: "5px",
                 border: "1px solid #ccc",
                 fontSize: "16px",
@@ -89,14 +125,13 @@ const Login = ({ onLogin }) => {
               required
               style={{
                 width: "100%",
-                padding: "12px 10px 12px 35px", // Added padding for icon
+                padding: "12px 10px 12px 35px",
                 borderRadius: "5px",
                 border: "1px solid #ccc",
                 fontSize: "16px",
                 boxSizing: "border-box",
               }}
             />
-            
           </div>
 
           {/* Login Button */}
@@ -119,7 +154,11 @@ const Login = ({ onLogin }) => {
 
         {/* Forgot Password link */}
         <div style={{ marginTop: "15px" }}>
-          <p style={{ fontSize: "14px", color: "#007bff" }}>Forgot Password?</p>
+          <p style={{ fontSize: "14px", color: "#007bff" }}>
+            <a href="/forgot-password" style={{ textDecoration: "none" }}>
+              Forgot Password?
+            </a>
+          </p>
         </div>
       </div>
     </div>
